@@ -2,11 +2,90 @@ package recordio_test
 
 import (
 	"bytes"
+	"fmt"
+	"os"
 	"reflect"
 	"testing"
 
 	"github.com/PaddlePaddle/recordio"
 )
+
+func ExampleWriter_Write() {
+	var buf bytes.Buffer
+	w := recordio.NewWriter(&buf, -1, -1)
+	w.Write([]byte("Hello"))
+	w.Write([]byte("World!"))
+	w.Close()
+}
+
+func ExampleScanner_Scan() {
+	f, err := os.Create("/tmp/example_recordio_0")
+	if err != nil {
+		panic(err)
+	}
+
+	w := recordio.NewWriter(f, -1, -1)
+	w.Write([]byte("Hello"))
+	w.Close()
+	f.Close()
+
+	f, err = os.Create("/tmp/example_recordio_1")
+	if err != nil {
+		panic(err)
+	}
+
+	w = recordio.NewWriter(f, -1, -1)
+	w.Write([]byte("World!"))
+	w.Close()
+	f.Close()
+
+	s, err := recordio.NewScanner("/tmp/example_recordio_*")
+	if err != nil {
+		panic(err)
+	}
+
+	for s.Scan() {
+		fmt.Println(string(s.Record()))
+	}
+	// Output:
+	// Hello
+	// World!
+}
+
+func ExampleRangeScanner_Scan() {
+	const path = "/tmp/example_recordio_0"
+	f, err := os.Create(path)
+	if err != nil {
+		panic(err)
+	}
+
+	w := recordio.NewWriter(f, -1, -1)
+	w.Write([]byte("Hello"))
+	w.Write([]byte("World!"))
+	w.Close()
+	f.Close()
+
+	f, err = os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+
+	idx, err := recordio.LoadIndex(f)
+	if err != nil {
+		panic(err)
+	}
+
+	f.Seek(0, 0)
+	s := recordio.NewRangeScanner(f, idx, 1, -1)
+	if err != nil {
+		panic(err)
+	}
+
+	for s.Scan() {
+		fmt.Println(string(s.Record()))
+	}
+	// Output: World!
+}
 
 func TestWriteRead(t *testing.T) {
 	const total = 1000
