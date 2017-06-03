@@ -4,7 +4,7 @@ import recordio
 
 
 class TestStringMethods(unittest.TestCase):
-    def test_upper(self):
+    def test_write_read(self):
         w = recordio.writer("/tmp/record_0")
         w.write("1")
         w.write("2")
