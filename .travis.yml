@@ -4,3 +4,6 @@ go:
 
 script:
  - go test -v -cover ./...
+ - go fmt ./...
+ - go build -buildmode=c-shared ./c
+ - go build -buildmode=c-archive ./c
