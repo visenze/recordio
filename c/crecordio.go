@@ -2,6 +2,7 @@ package main
 
 /*
 #include <string.h>
+#include <stdlib.h>
 
 typedef int reader;
 typedef int writer;
@@ -111,6 +112,14 @@ func recordio_read(reader C.reader, record **C.uchar) C.int {
 func release_recordio_reader(reader C.reader) {
 	r := removeReader(reader)
 	r.scanner.Close()
+}
+
+//export mem_free
+func mem_free(p unsafe.Pointer) {
+	// "free" may be a better name for this function, but doing so
+	// will cause calling any function of this library from Python
+	// ctypes hanging.
+	C.free(p)
 }
 
 func main() {} // Required but ignored
