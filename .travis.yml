@@ -1,6 +1,19 @@
 language: go
+
+dist: trusty
+
 go:
  - 1.8.3
+
+addons:
+  apt:
+    packages:
+      - python
+      - python-pip
+      - python-wheel
+
+before_install:
+  - pip install wheel
 
 script:
  - go test -v -cover ./...
@@ -8,3 +21,9 @@ script:
  - cd c
  - go build -buildmode=c-shared
  - go build -buildmode=c-archive
+ - cd python && ./build.sh && pip install *.whl --user && cd recordio && python -m unittest discover --pattern='*.py' && cd ../..
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
