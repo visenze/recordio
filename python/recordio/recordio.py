@@ -1,8 +1,8 @@
 import ctypes
+import os
 
-# TODO(helin): automate following build command:
-# go build -buildmode=c-shared ../c && rm c.h && mv c librecordio.so
-lib = ctypes.cdll.LoadLibrary("librecordio.so")
+path = os.path.join(os.path.dirname(__file__), "librecordio.so")
+lib = ctypes.cdll.LoadLibrary(path)
 
 
 class writer(object):
