@@ -17,6 +17,11 @@ before_install:
 
 script:
  - go test -v -cover ./...
+ - go fmt ./...
+ - cd c
+ - go build -buildmode=c-shared
+ - go build -buildmode=c-archive
+ - cd ..
  - cd python && ./build.sh && pip install *.whl --user && cd recordio && python -m unittest discover --pattern='*.py' && cd ../..
 
 notifications:
