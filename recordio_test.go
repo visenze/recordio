@@ -104,8 +104,8 @@ func TestWriteRead(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if idx.NumRecords() != total {
-		t.Fatal("num record does not match:", idx.NumRecords(), total)
+	if idx.NumRecords != total {
+		t.Fatal("num record does not match:", idx.NumRecords, total)
 	}
 
 	s := recordio.NewRangeScanner(bytes.NewReader(buf.Bytes()), idx, -1, -1)

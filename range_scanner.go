@@ -3,11 +3,14 @@ package recordio
 import "io"
 
 // Index consists offsets and sizes of the consequetive chunks in a RecordIO file.
+//
+// Index supports Gob. Every field in the Index needs to be exported
+// for the correct encoding and decoding using Gob.
 type Index struct {
-	chunkOffsets []int64
-	chunkLens    []uint32
-	numRecords   int   // the number of all records in a file.
-	chunkRecords []int // the number of records in chunks.
+	ChunkOffsets []int64
+	ChunkLens    []uint32
+	NumRecords   int   // the number of all records in a file.
+	ChunkRecords []int // the number of records in chunks.
 }
 
 // LoadIndex scans the file and parse chunkOffsets, chunkLens, and len.
@@ -23,10 +26,10 @@ func LoadIndex(r io.ReadSeeker) (*Index, error) {
 			break
 		}
 
-		f.chunkOffsets = append(f.chunkOffsets, offset)
-		f.chunkLens = append(f.chunkLens, hdr.numRecords)
-		f.chunkRecords = append(f.chunkRecords, int(hdr.numRecords))
-		f.numRecords += int(hdr.numRecords)
+		f.ChunkOffsets = append(f.ChunkOffsets, offset)
+		f.ChunkLens = append(f.ChunkLens, hdr.numRecords)
+		f.ChunkRecords = append(f.ChunkRecords, int(hdr.numRecords))
+		f.NumRecords += int(hdr.numRecords)
 
 		offset, e = r.Seek(int64(hdr.compressedSize), io.SeekCurrent)
 		if e != nil {
@@ -40,23 +43,18 @@ func LoadIndex(r io.ReadSeeker) (*Index, error) {
 	return nil, e
 }
 
-// NumRecords returns the total number of records in a RecordIO file.
-func (r *Index) NumRecords() int {
-	return r.numRecords
-}
-
 // NumChunks returns the total number of chunks in a RecordIO file.
 func (r *Index) NumChunks() int {
-	return len(r.chunkLens)
+	return len(r.ChunkLens)
 }
 
 // ChunkIndex return the Index of i-th Chunk.
 func (r *Index) ChunkIndex(i int) *Index {
 	idx := &Index{}
-	idx.chunkOffsets = []int64{r.chunkOffsets[i]}
-	idx.chunkLens = []uint32{r.chunkLens[i]}
-	idx.chunkRecords = []int{r.chunkRecords[i]}
-	idx.numRecords = idx.chunkRecords[0]
+	idx.ChunkOffsets = []int64{r.ChunkOffsets[i]}
+	idx.ChunkLens = []uint32{r.ChunkLens[i]}
+	idx.ChunkRecords = []int{r.ChunkRecords[i]}
+	idx.NumRecords = idx.ChunkRecords[0]
 	return idx
 }
 
@@ -65,7 +63,7 @@ func (r *Index) ChunkIndex(i int) *Index {
 // record is out of range.
 func (r *Index) Locate(recordIndex int) (int, int) {
 	sum := 0
-	for i, l := range r.chunkLens {
+	for i, l := range r.ChunkLens {
 		sum += int(l)
 		if recordIndex < sum {
 			return i, recordIndex - sum + int(l)
@@ -91,8 +89,8 @@ func NewRangeScanner(r io.ReadSeeker, index *Index, start, len int) *RangeScanne
 	if start < 0 {
 		start = 0
 	}
-	if len < 0 || start+len >= index.NumRecords() {
-		len = index.NumRecords() - start
+	if len < 0 || start+len >= index.NumRecords {
+		len = index.NumRecords - start
 	}
 
 	return &RangeScanner{
@@ -116,7 +114,7 @@ func (s *RangeScanner) Scan() bool {
 	} else {
 		if ci, _ := s.index.Locate(s.cur); s.chunkIndex != ci {
 			s.chunkIndex = ci
-			s.chunk, s.err = parseChunk(s.reader, s.index.chunkOffsets[ci])
+			s.chunk, s.err = parseChunk(s.reader, s.index.ChunkOffsets[ci])
 		}
 	}
 
