@@ -58,7 +58,7 @@ func TestWriteAndRead(t *testing.T) {
 
 	idx, e := LoadIndex(bytes.NewReader(buf.Bytes()))
 	assert.Nil(e)
-	assert.Equal([]uint32{2, 1}, idx.chunkLens)
+	assert.Equal([]uint32{2, 1}, idx.ChunkLens)
 	assert.Equal(
 		[]int64{0,
 			int64(4 + // magic number
@@ -66,7 +66,7 @@ func TestWriteAndRead(t *testing.T) {
 				5 + // first record
 				4 + // second record
 				2*4)}, // two record legnths
-		idx.chunkOffsets)
+		idx.ChunkOffsets)
 
 	s := NewRangeScanner(bytes.NewReader(buf.Bytes()), idx, -1, -1)
 	i := 0
@@ -86,5 +86,5 @@ func TestWriteEmptyFile(t *testing.T) {
 
 	idx, e := LoadIndex(bytes.NewReader(buf.Bytes()))
 	assert.Nil(e)
-	assert.Equal(0, idx.NumRecords())
+	assert.Equal(0, idx.NumRecords)
 }
