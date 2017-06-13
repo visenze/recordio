@@ -29,19 +29,6 @@ type reader struct {
 	scanner *recordio.Scanner
 }
 
-func cArrayToSlice(p unsafe.Pointer, len int) []byte {
-	if p == nullPtr {
-		return nil
-	}
-
-	// create a Go clice backed by a C array, reference:
-	// https://github.com/golang/go/wiki/cgo#turning-c-arrays-into-go-slices
-	//
-	// Go garbage collector will not interact with this data, need
-	// to be freed properly.
-	return (*[1 << 30]byte)(p)[:len:len]
-}
-
 //export create_recordio_writer
 func create_recordio_writer(path *C.char) C.writer {
 	p := C.GoString(path)
@@ -59,13 +46,23 @@ func create_recordio_writer(path *C.char) C.writer {
 //export recordio_write
 func recordio_write(writer C.writer, buf *C.uchar, size C.int) C.int {
 	w := getWriter(writer)
-	b := cArrayToSlice(unsafe.Pointer(buf), int(size))
+
+	// Make a copy of the C buffer rather than create a slice
+	// backed by the C buffer. This is because RecordIO caches the
+	// slice in memory until the max chunk size is reached and
+	// then dump the slice to disk. At which point the C buffer is
+	// no longer valid.
+	b := make([]byte, int(size))
+	for i := 0; i < int(size); i++ {
+		ptr := (*C.uchar)(unsafe.Pointer(uintptr(unsafe.Pointer(buf)) + uintptr(i)))
+		b[i] = byte(*ptr)
+	}
+
 	c, err := w.w.Write(b)
 	if err != nil {
 		log.Println(err)
 		return -1
 	}
-
 	return C.int(c)
 }
 
