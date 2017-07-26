@@ -13,7 +13,7 @@ Please see [here](recordio_test.go)
 
 ### Python
 
-Please see [here](python/recordio_test.py)
+Please see [here](python/recordio/recordio_test.py)
 
 ### C
 
