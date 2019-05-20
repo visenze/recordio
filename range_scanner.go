@@ -15,9 +15,12 @@ type Index struct {
 
 // LoadIndex scans the file and parse chunkOffsets, chunkLens, and len.
 func LoadIndex(r io.ReadSeeker) (*Index, error) {
+	offset, e := r.Seek(0, io.SeekCurrent)
+	if e != nil {
+		return nil, e
+	}
+
 	f := &Index{}
-	offset := int64(0)
-	var e error
 	var hdr *Header
 
 	for {
