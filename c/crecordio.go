@@ -30,7 +30,7 @@ type reader struct {
 }
 
 //export create_recordio_writer
-func create_recordio_writer(path *C.char) C.writer {
+func create_recordio_writer(path *C.char, maxChunkSize C.int, compressor C.int) C.writer {
 	p := C.GoString(path)
 	f, err := os.Create(p)
 	if err != nil {
@@ -38,7 +38,7 @@ func create_recordio_writer(path *C.char) C.writer {
 		return -1
 	}
 
-	w := recordio.NewWriter(f, -1, -1)
+	w := recordio.NewWriter(f, int(maxChunkSize), int(compressor))
 	writer := &writer{f: f, w: w}
 	return addWriter(writer)
 }

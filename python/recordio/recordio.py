@@ -22,8 +22,8 @@ class writer(object):
     writer is a recordio writer.
     """
 
-    def __init__(self, path):
-        self.w = lib.create_recordio_writer(_convert_to_bytes(path))
+    def __init__(self, path, maxChunkSize = -1, compressor = -1):
+        self.w = lib.create_recordio_writer(_convert_to_bytes(path), maxChunkSize, compressor)
 
     def close(self):
         lib.release_recordio_writer(self.w)
