@@ -5,7 +5,7 @@ class BinaryDistribution(Distribution):
         return True
 
 setup(
-    name='recordio',
+    name='visenze_recordio',
     version='0.1',
     description='An implementation of the RecordIO file format.',
     url='https://github.com/PaddlePaddle/recordio',
