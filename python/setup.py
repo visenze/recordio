@@ -6,7 +6,7 @@ class BinaryDistribution(Distribution):
 
 setup(
     name='visenze_recordio',
-    version='0.1',
+    version='0.2',
     description='An implementation of the RecordIO file format.',
     url='https://github.com/PaddlePaddle/recordio',
     author='PaddlePaddle Authors',
