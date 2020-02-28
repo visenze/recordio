@@ -22,12 +22,12 @@ class writer(object):
     writer is a recordio writer.
     """
 
-    def __init__(self, path, maxChunkSize=-1, compressor=-1, logger=None):
+    def __init__(self, path, max_chunk_size=-1, compressor=-1, logger=None):
         self.logger = logger
         self.path = path
-        self.w = lib.create_recordio_writer(_convert_to_bytes(path), maxChunkSize, compressor)
+        self.w = lib.create_recordio_writer(_convert_to_bytes(path), max_chunk_size, compressor)
         if self.w > -1 and self.logger:
-            self.logger.debug(f"RecordIO Writer {self.path} created with maxChunkSize {maxChunkSize}")
+            self.logger.debug(f"RecordIO Writer {self.path} created with max_chunk_size {max_chunk_size}")
 
     def close(self):
         lib.release_recordio_writer(self.w)
