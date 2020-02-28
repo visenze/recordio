@@ -27,7 +27,7 @@ class writer(object):
         self.path = path
         self.w = lib.create_recordio_writer(_convert_to_bytes(path), max_chunk_size, compressor)
         if self.w > -1 and self.logger:
-            self.logger.debug(f"RecordIO Writer {self.path} created with max_chunk_size {max_chunk_size}")
+            self.logger.debug(f"RecordIO Writer {self.path} created with max_chunk_size={max_chunk_size}")
 
     def close(self):
         lib.release_recordio_writer(self.w)
