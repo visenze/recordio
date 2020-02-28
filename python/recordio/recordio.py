@@ -22,12 +22,18 @@ class writer(object):
     writer is a recordio writer.
     """
 
-    def __init__(self, path, maxChunkSize = -1, compressor = -1):
+    def __init__(self, path, maxChunkSize=-1, compressor=-1, logger=None):
+        self.logger = logger
+        self.path = path
         self.w = lib.create_recordio_writer(_convert_to_bytes(path), maxChunkSize, compressor)
+        if self.w > -1 and self.logger:
+            self.logger.debug(f"RecordIO Writer {self.path} created with maxChunkSize {maxChunkSize}")
 
     def close(self):
         lib.release_recordio_writer(self.w)
         self.w = None
+        if self.logger:
+            self.logger.debug(f"RecordIO Writer {self.path} closed")
 
     def write(self, record):
         lib.recordio_write(self.w, ctypes.c_char_p(_convert_to_bytes(record)), len(record))
@@ -38,12 +44,18 @@ class reader(object):
     reader is a recordio reader.
     """
 
-    def __init__(self, path):
-        self.r = lib.create_recordio_reader(_convert_to_bytes(path))
+    def __init__(self, path, logger=None):
+        self.logger = logger
+        self.path = path
+        self.r = lib.create_recordio_reader(_convert_to_bytes(self.path))
+        if self.r > -1 and self.logger:
+            self.logger.debug(f"RecordIO Reader {self.path} created")
 
     def close(self):
         lib.release_recordio_reader(self.r)
         self.r = None
+        if self.logger:
+            self.logger.debug(f"RecordIO Reader {self.path} closed")
 
     def read(self):
         p = ctypes.c_char_p()
