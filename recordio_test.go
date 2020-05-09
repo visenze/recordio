@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/PaddlePaddle/recordio"
+	"github.com/visenze/recordio"
 )
 
 func ExampleWriter_Write() {
