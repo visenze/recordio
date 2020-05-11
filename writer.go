@@ -42,13 +42,13 @@ func (w *Writer) Write(record []byte) (int, error) {
 		return 0, fmt.Errorf("Cannot write since writer had been closed")
 	}
 
-	if w.chunk.numBytes+len(record) > w.maxChunkSize {
+	w.chunk.add(record)
+	if w.chunk.numBytes > w.maxChunkSize {
 		if e := w.chunk.dump(w.Writer, w.compressor); e != nil {
 			return 0, e
 		}
 	}
 
-	w.chunk.add(record)
 	return len(record), nil
 }
 
